@@ -51,5 +51,7 @@ grails.project.dependency.resolution = {
         build(":tomcat:7.0.55.2") {
             export = false
         }
+
+        test ":code-coverage:2.0.3-3"
     }
 }
