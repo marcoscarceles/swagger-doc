@@ -7,11 +7,13 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 class SwaggerController {
 
     GrailsApplication grailsApplication
+    SwaggerService swaggerService
 
     def index() {
-        def swaggerConfig = grailsApplication.config.swagger
-        println "SwaggerConfig is " + swaggerConfig
+        Map swaggerConfig = grailsApplication.config.swagger as Map
         def swagger = new Swagger(swaggerConfig)
+        swagger.tags = swaggerService.tags
+        swagger.securityDefinitions = swaggerService.securityDefinitions
         render swagger as JSON
     }
 }
