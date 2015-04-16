@@ -4,7 +4,7 @@ import com.wordnik.swagger.models.Swagger
 import grails.converters.JSON
 
 
-class SwaggerBootStrap {
+class SwaggerDocBootStrap {
 
     def init = { servletContext ->
         [Swagger, Info].each {
