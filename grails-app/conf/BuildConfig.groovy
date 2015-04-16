@@ -40,6 +40,11 @@ grails.project.dependency.resolution = {
         compile 'com.wordnik:swagger-models:1.5.1-M2'
         test 'io.swagger:swagger-parser:1.0.5'
         test 'com.github.fge:json-schema-validator:2.2.5'
+
+        // Latest httpcore and httpmime for Coveralls plugin
+        build 'org.apache.httpcomponents:httpcore:4.3.2'
+        build 'org.apache.httpcomponents:httpclient:4.3.2'
+        build 'org.apache.httpcomponents:httpmime:4.3.3'
     }
 
     plugins {
@@ -53,5 +58,10 @@ grails.project.dependency.resolution = {
         }
 
         test ":code-coverage:2.0.3-3"
+
+        // Coveralls plugin
+        build(':coveralls:0.1.3') {
+            export = false
+        }
     }
 }
