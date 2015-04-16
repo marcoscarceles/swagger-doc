@@ -8,7 +8,7 @@ import grails.converters.JSON
 class SwaggerBootStrap {
 
     def init = { servletContext ->
-        [Swagger, Info, Tag].each {
+        [Swagger, Info, Tag ].each {
             JSON.registerObjectMarshaller(it,MarshallerHelper.MARSHALLER_WRAPPER)
         }
     }
