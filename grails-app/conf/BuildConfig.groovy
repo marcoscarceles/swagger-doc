@@ -37,11 +37,18 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
+        compile 'com.wordnik:swagger-models:1.5.1-M2'
+        test 'io.swagger:swagger-parser:1.0.5'
+        test 'com.github.fge:json-schema-validator:2.2.5'
     }
 
     plugins {
         build(":release:3.1.0",
               ":rest-client-builder:2.1.0") {
+            export = false
+        }
+
+        build(":tomcat:7.0.55.2") {
             export = false
         }
     }
