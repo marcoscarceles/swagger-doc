@@ -7,7 +7,7 @@ grails.project.fork = [
     //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
 
     // configure settings for the test-app JVM, uses the daemon by default
-    test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+    test: false,
     // configure settings for the run-app JVM
     run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
     // configure settings for the run-war JVM
@@ -37,6 +37,9 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
+        compile 'com.wordnik:swagger-models:1.5.1-M2'
+        test 'io.swagger:swagger-parser:1.0.5'
+        test 'com.github.fge:json-schema-validator:2.2.5'
     }
 
     plugins {
@@ -44,5 +47,11 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:2.1.0") {
             export = false
         }
+
+        build(":tomcat:7.0.55.2") {
+            export = false
+        }
+
+        test ":code-coverage:2.0.3-3"
     }
 }

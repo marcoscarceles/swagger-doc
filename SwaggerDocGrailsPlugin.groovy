@@ -1,3 +1,6 @@
+import grails.util.Environment
+import org.codehaus.groovy.grails.commons.GrailsApplication
+
 class SwaggerDocGrailsPlugin {
     // the plugin version
     def version = "0.1-SNAPSHOT"
@@ -44,7 +47,7 @@ making use of the bare swagger-core annotations without needing to use JAX-RS.
     }
 
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+        mergeConfig(application)
     }
 
     def doWithDynamicMethods = { ctx ->
@@ -64,9 +67,21 @@ making use of the bare swagger-core annotations without needing to use JAX-RS.
     def onConfigChange = { event ->
         // TODO Implement code that is executed when the project configuration changes.
         // The event is the same as for 'onChange'.
+        mergeConfig(application)
     }
 
     def onShutdown = { event ->
         // TODO Implement code that is executed when the application shuts down (optional)
+    }
+
+    private void mergeConfig(GrailsApplication grailsApplication) {
+        ConfigObject swaggerAppConfig = grailsApplication.config.swagger
+        ConfigSlurper slurper = new ConfigSlurper(Environment.getCurrent().getName());
+        ConfigObject swaggerDefaultConfig = slurper.parse(grailsApplication.classLoader.loadClass("SwaggerConfig"))
+
+        ConfigObject mergedConfig = new ConfigObject();
+        mergedConfig.putAll(swaggerDefaultConfig.swagger.merge(swaggerAppConfig))
+
+        grailsApplication.config.swagger = mergedConfig;
     }
 }
