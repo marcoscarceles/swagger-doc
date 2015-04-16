@@ -1,8 +1,7 @@
 # swagger-doc
 
 [![Build Status](https://snap-ci.com/marcos-carceles/swagger-doc/branch/dev/build_image)](https://snap-ci.com/marcos-carceles/swagger-doc/branch/dev)
-[![Coverage Status](https://coveralls.io/repos/marcos-carceles/swagger-doc/badge.svg)](https://coveralls.io/r/marcos-carceles/swagger-doc)
-
+[![Coverage Status](https://coveralls.io/repos/marcos-carceles/swagger-doc/badge.svg?branch=dev)](https://coveralls.io/r/marcos-carceles/swagger-doc?branch=dev)
 
 Swagger 2 doc implementation for Grails.
 Based on https://github.com/swagger-api/swagger-core.
