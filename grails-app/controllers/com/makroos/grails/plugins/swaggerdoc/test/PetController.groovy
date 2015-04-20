@@ -1,6 +1,9 @@
 package com.makroos.grails.plugins.swaggerdoc.test
 
 import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiParam
+import com.wordnik.swagger.annotations.ApiResponse
+import com.wordnik.swagger.annotations.ApiResponses
 import com.wordnik.swagger.annotations.Authorization
 import grails.converters.JSON
 
@@ -18,7 +21,19 @@ import grails.converters.JSON
 class PetController {
 
     def index() {
-        render new Pet(name: "Toby", collarNumber: 42) as JSON
+        render([
+            new Pet(name: "Tod", collarNumber: 42),
+            new Pet(name: "Toby", collarNumber: 24)
+        ] as JSON)
+    }
+
+    @ApiResponses(value = [
+            @ApiResponse(code=404,message = "Pet Not Found"),
+            @ApiResponse(code=410,message = "Pet Gone")
+    ])
+    @ApiParam(name="id")
+    def show(Integer id) {
+        render new Pet(name:"Rudolph", collarNumber: 1) as JSON
     }
 
 }

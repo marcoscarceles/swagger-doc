@@ -5,8 +5,8 @@ import com.wordnik.swagger.annotations.Authorization
 import com.wordnik.swagger.annotations.AuthorizationScope
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
-import com.wordnik.swagger.models.auth.OAuth2Definition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
+import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
@@ -71,6 +71,12 @@ class SwaggerServiceSpec extends Specification {
         securityDefinitions['testapikey'].type == 'apiKey'
         and: "Can build custom authentication"
         securityDefinitions['testother'].type == 'bespoke'
+    }
+
+    @Ignore
+    void "swaggerService determines the HTTP Methods"(){
+        expect:
+        false
     }
 }
 

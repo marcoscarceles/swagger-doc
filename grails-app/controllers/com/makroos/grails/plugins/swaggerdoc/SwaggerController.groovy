@@ -13,6 +13,7 @@ class SwaggerController {
         Map swaggerConfig = grailsApplication.config.swagger as Map
         def swagger = new Swagger(swaggerConfig)
         swagger.tags = swaggerService.tags
+        swagger.paths = swaggerService.paths
         swagger.securityDefinitions = swaggerService.securityDefinitions
         render swagger as JSON
     }
