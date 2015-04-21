@@ -27,9 +27,9 @@ class SwaggerService {
 
     private Map<Api, List<ApiOperation>> _apiOperations
 
-    Collection<Tag> getTags(Swagger swagger) {
+    Collection<Tag> getTags(Swagger swagger, Collection<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
         List<Tag> apiTags = swagger.tags ?: []
-        getApplicationApis().each { Api api ->
+        getApplicationApis(controllers).each { Api api ->
             List<String> tagNames = api.tags().grep() ?: [api.value()]
             tagNames.each { String tag ->
                 apiTags << new Tag(name: tag, description: api.description())
@@ -38,7 +38,8 @@ class SwaggerService {
         swagger.tags = apiTags
     }
 
-    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<Api> apis = getApplicationApis()) {
+    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+        Collection<Api> apis = getApplicationApis(controllers)
         Map<String, SecuritySchemeDefinition> secDefinitions = swagger.securityDefinitions ?: [:]
         apis.each { Api api ->
             api.authorizations().findAll { it.value() != "" }.each { Authorization auth ->
@@ -107,8 +108,8 @@ class SwaggerService {
         swagger.paths = apiPaths
     }
 
-    synchronized Map<Api, List<ApiOperation>> getApplicationApiOperations(List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
-        controllers.collectEntries { GrailsControllerClass controllerClass ->
+    synchronized Map<Api, List<ApiOperation>> getApplicationApiOperations(Collection<GrailsClass> controllers) {
+        controllers.collectEntries { GrailsClass controllerClass ->
             Api api = controllerClass.clazz.getAnnotation(Api)
             if (api) {
                 List<ApiOperation> operations = controllerClass.clazz.methods.collect { Method action ->
@@ -120,7 +121,7 @@ class SwaggerService {
         }
     }
 
-    Set<Api> getApplicationApis(List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
-        return getApplicationApiOperations().keySet()
+    Set<Api> getApplicationApis(Collection<GrailsClass> controllers) {
+        return getApplicationApiOperations(controllers).keySet()
     }
 }
