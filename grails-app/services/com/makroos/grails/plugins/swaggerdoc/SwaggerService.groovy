@@ -9,12 +9,14 @@ import com.wordnik.swagger.annotations.AuthorizationScope
 import com.wordnik.swagger.models.Operation
 import com.wordnik.swagger.models.Path
 import com.wordnik.swagger.models.Response
+import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.ApiKeyAuthDefinition
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
 import com.wordnik.swagger.models.auth.OAuth2Definition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.grails.commons.GrailsClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import java.lang.reflect.Method
 
@@ -25,33 +27,30 @@ class SwaggerService {
 
     private Map<Api, List<ApiOperation>> _apiOperations
 
-    Collection<Tag> getTags() {
-        List<Tag> tags = []
-        apis.each { Api api ->
+    Collection<Tag> getTags(Swagger swagger) {
+        List<Tag> apiTags = swagger.tags ?: []
+        getApplicationApis().each { Api api ->
             List<String> tagNames = api.tags().grep() ?: [api.value()]
             tagNames.each { String tag ->
-                tags << new Tag(name: tag, description: api.description())
+                apiTags << new Tag(name: tag, description: api.description())
             }
         }
-        return tags
+        swagger.tags = apiTags
     }
 
-    Map<String, SecuritySchemeDefinition> getSecurityDefinitions() {
-        getSecurityDefinitions(apis)
-    }
-    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Collection<Api> apis) {
-        Map<String, SecuritySchemeDefinition> secDefinitions = [:]
+    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<Api> apis = getApplicationApis()) {
+        Map<String, SecuritySchemeDefinition> secDefinitions = swagger.securityDefinitions ?: [:]
         apis.each { Api api ->
-            api.authorizations().findAll{ it.value() != "" }.each { Authorization auth ->
+            api.authorizations().findAll { it.value() != "" }.each { Authorization auth ->
                 SecuritySchemeDefinition definition
-                switch(auth.type()) {
-                    case "apiKey" :
+                switch (auth.type()) {
+                    case "apiKey":
                         definition = new ApiKeyAuthDefinition()
                         break
-                    case "basic" :
+                    case "basic":
                         definition = new BasicAuthDefinition()
                         break
-                    case "oauth2" :
+                    case "oauth2":
                         definition = new OAuth2Definition()
                         definition.scopes =
                                 auth.scopes().collectEntries { AuthorizationScope scope ->
@@ -61,9 +60,11 @@ class SwaggerService {
 
                     default: definition = new SecuritySchemeDefinition() {
                         private String type = "other"
+
                         String getType() {
                             return this.type
                         }
+
                         void setType(String type) {
                             this.type = type
                         }
@@ -73,17 +74,22 @@ class SwaggerService {
                 secDefinitions[auth.value()] = definition
             }
         }
-        return secDefinitions
+        swagger.securityDefinitions = secDefinitions
     }
 
-    Map<String, Path> getPaths() {
-        Map<String, Path> apiPaths = [:]
-        grailsApplication.controllerClasses.each { GrailsControllerClass grailsController ->
+    Map<String, Path> getPaths(Swagger swagger, List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+
+        Map<String, Path> apiPaths = swagger.paths ?: [:]
+
+        controllers.each { GrailsControllerClass grailsController ->
             Api api = grailsController.clazz.getAnnotation(Api)
-            if(api) {
-                grailsController.clazz.methods.findAll { it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses) }.each {Method action ->
+            if (api) {
+                grailsController.clazz.methods.findAll {
+                    it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses)
+                }.each { Method action ->
                     String pathStr = grailsUrlService.getPathForAction(grailsController, action)
-                    if(!apiPaths.containsKey(pathStr)) {
+                    pathStr -= swagger.basePath
+                    if (!apiPaths.containsKey(pathStr)) {
                         apiPaths[pathStr] = new Path()
                     }
                     Path path = apiPaths[pathStr]
@@ -98,26 +104,23 @@ class SwaggerService {
                 }
             }
         }
-        apiPaths
+        swagger.paths = apiPaths
     }
 
-    private synchronized Map<Api, List<ApiOperation>> getApiOperations() {
-        if(!_apiOperations) {
-            _apiOperations = grailsApplication.controllerClasses.collectEntries { GrailsControllerClass controllerClass ->
-                Api api = controllerClass.clazz.getAnnotation(Api)
-                if(api) {
-                    List<ApiOperation> operations = controllerClass.clazz.methods.collect { Method action ->
-                        action.getAnnotation(ApiOperation)
-                    }.grep()
-                    return [(api) : (operations)]
-                }
-                return [:]
+    synchronized Map<Api, List<ApiOperation>> getApplicationApiOperations(List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+        controllers.collectEntries { GrailsControllerClass controllerClass ->
+            Api api = controllerClass.clazz.getAnnotation(Api)
+            if (api) {
+                List<ApiOperation> operations = controllerClass.clazz.methods.collect { Method action ->
+                    action.getAnnotation(ApiOperation)
+                }.grep()
+                return [(api): (operations)]
             }
+            return [:]
         }
-        _apiOperations
     }
 
-    private Set<Api> getApis() {
-        return apiOperations.keySet()
+    Set<Api> getApplicationApis(List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+        return getApplicationApiOperations().keySet()
     }
 }

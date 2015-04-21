@@ -2,6 +2,8 @@
 
 grails.project.groupId = "com.makroos.grails.plugins.swaggerdoc"
 
+grails.app.context = "/"
+
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:

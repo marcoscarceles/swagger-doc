@@ -3,6 +3,7 @@ package com.makroos.grails.plugins.swaggerdoc
 import com.wordnik.swagger.annotations.Api
 import com.wordnik.swagger.annotations.Authorization
 import com.wordnik.swagger.annotations.AuthorizationScope
+import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
@@ -12,7 +13,7 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-class SwaggerServiceSpec extends Specification {
+class SwaggerServiceIntegrationSpec extends Specification {
 
     SwaggerService swaggerService
 
@@ -24,7 +25,7 @@ class SwaggerServiceSpec extends Specification {
 
     void "can fetch tags"() {
         when:
-        List<Tag> tags = swaggerService.tags
+        List<Tag> tags = swaggerService.getTags(new Swagger())
 
         then:
         tags.size() == 3
@@ -36,7 +37,7 @@ class SwaggerServiceSpec extends Specification {
 
     void "tags overrides value on @Api"() {
         when:
-        List<Tag> withTags = swaggerService.tags.findAll { it.description == 'When Api declares tags, it overrrides the description' }
+        List<Tag> withTags = swaggerService.getTags(new Swagger()).findAll { it.description == 'When Api declares tags, it overrrides the description' }
 
         then:
         withTags.size() == 2
@@ -45,7 +46,7 @@ class SwaggerServiceSpec extends Specification {
 
     void "can fetch securityDefinitions"() {
         when:
-        Map<String, SecuritySchemeDefinition> securityDefinitions = swaggerService.securityDefinitions
+        Map<String, SecuritySchemeDefinition> securityDefinitions = swaggerService.getSecurityDefinitions(new Swagger())
 
         then:
         securityDefinitions['petauth'] instanceof BasicAuthDefinition
@@ -60,7 +61,7 @@ class SwaggerServiceSpec extends Specification {
         Api api = MultipleAuthApi.getAnnotation(Api)
 
         when:
-        def securityDefinitions = swaggerService.getSecurityDefinitions([api])
+        def securityDefinitions = swaggerService.getSecurityDefinitions(new Swagger(), [api])
 
         then: "Can build Oauth2"
         securityDefinitions['testoauth2'].scopes.size() == 2
