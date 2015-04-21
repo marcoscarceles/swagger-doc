@@ -18,7 +18,7 @@ class SwaggerSpec extends Specification {
 
     def "swagger resource matches specification"() {
         when:
-        String swaggerData = 'http://localhost:8080/swagger-doc/swagger/index'.toURL().text
+        String swaggerData = 'http://localhost:8080/swagger-doc/api-doc'.toURL().text
         then:
         validate(swaggerData)
     }
