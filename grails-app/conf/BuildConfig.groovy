@@ -67,5 +67,8 @@ grails.project.dependency.resolution = {
 }
 
 coverage {
-    exclusions = ["**/test/**"]
+    exclusions = [
+        "**/test/**",
+        "**/SwaggerConfig*"
+    ]
 }

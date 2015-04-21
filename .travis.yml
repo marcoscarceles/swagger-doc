@@ -2,6 +2,6 @@ language: groovy
 jdk: oraclejdk7
 script:
   - ./grailsw refresh-dependencies
-  - ./grailsw test-app -coverage -xml
+  - ./grailsw test-app && ./grailsw test-app -unit -coverage -xml
 after_success:
   - ./grailsw coveralls
