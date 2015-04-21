@@ -25,9 +25,7 @@ class SwaggerService {
     GrailsApplication grailsApplication
     GrailsUrlService grailsUrlService
 
-    private Map<Api, List<ApiOperation>> _apiOperations
-
-    Collection<Tag> getTags(Swagger swagger, Collection<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+    Collection<Tag> getTags(Swagger swagger, Collection<GrailsClass> controllers = applicationControllers) {
         List<Tag> apiTags = swagger.tags ?: []
         getApplicationApis(controllers).each { Api api ->
             List<String> tagNames = api.tags().grep() ?: [api.value()]
@@ -38,7 +36,7 @@ class SwaggerService {
         swagger.tags = apiTags
     }
 
-    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+    Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<GrailsClass> controllers = applicationControllers) {
         Collection<Api> apis = getApplicationApis(controllers)
         Map<String, SecuritySchemeDefinition> secDefinitions = swagger.securityDefinitions ?: [:]
         apis.each { Api api ->
@@ -78,7 +76,7 @@ class SwaggerService {
         swagger.securityDefinitions = secDefinitions
     }
 
-    Map<String, Path> getPaths(Swagger swagger, List<GrailsClass> controllers = grailsApplication.controllerClasses as List) {
+    Map<String, Path> getPaths(Swagger swagger, List<GrailsClass> controllers = applicationControllers) {
 
         Map<String, Path> apiPaths = swagger.paths ?: [:]
 
@@ -106,6 +104,10 @@ class SwaggerService {
             }
         }
         swagger.paths = apiPaths
+    }
+
+    List<GrailsClass> getApplicationControllers() {
+        grailsApplication.controllerClasses as List
     }
 
     synchronized Map<Api, List<ApiOperation>> getApplicationApiOperations(Collection<GrailsClass> controllers) {

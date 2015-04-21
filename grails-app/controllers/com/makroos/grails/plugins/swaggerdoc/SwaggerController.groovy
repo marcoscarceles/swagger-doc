@@ -15,6 +15,6 @@ class SwaggerController {
         swaggerService.getTags(swagger)
         swaggerService.getPaths(swagger)
         swaggerService.getSecurityDefinitions(swagger)
-        render swagger as JSON
+        render new JSON(swagger)
     }
 }

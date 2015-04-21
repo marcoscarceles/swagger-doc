@@ -22,15 +22,11 @@ import spock.lang.Specification
  * Created by @marcos-carceles on 21/04/15.
  */
 @TestFor(SwaggerService)
-class SwaggerServiceSpec extends Specification {
+class SwaggerServiceSpec extends SwaggerSpecification {
 
-    @Shared List<GrailsControllerClass> appControllers
     @Shared GrailsControllerClass testController
 
     def setupSpec() {
-        appControllers = []
-        appControllers << new DefaultGrailsControllerClass(PetController)
-        appControllers << new DefaultGrailsControllerClass(WithTagsController)
         testController = new DefaultGrailsControllerClass(TestController)
     }
 
@@ -118,7 +114,6 @@ class SwaggerServiceSpec extends Specification {
         @Authorization(value="testother", type = "bespoke")
 ])
 class TestController {
-
     @ApiResponses(value=[ @ApiResponse(code = 500, message = "Ups, we messed it up") ])
     def index(){}
 }
