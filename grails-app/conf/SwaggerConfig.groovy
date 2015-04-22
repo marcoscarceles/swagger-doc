@@ -5,4 +5,5 @@ swagger {
     }
     basePath = "/api"
     paths = [:]
+    schemes = ["http"]
 }

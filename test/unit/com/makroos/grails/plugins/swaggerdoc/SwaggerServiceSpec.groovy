@@ -1,7 +1,5 @@
 package com.makroos.grails.plugins.swaggerdoc
 
-import com.makroos.grails.plugins.swaggerdoc.test.PetController
-import com.makroos.grails.plugins.swaggerdoc.test.WithTagsController
 import com.wordnik.swagger.annotations.Api
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
@@ -16,7 +14,6 @@ import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import spock.lang.Ignore
 import spock.lang.Shared
-import spock.lang.Specification
 
 /**
  * Created by @marcos-carceles on 21/04/15.
@@ -24,10 +21,10 @@ import spock.lang.Specification
 @TestFor(SwaggerService)
 class SwaggerServiceSpec extends SwaggerSpecification {
 
-    @Shared GrailsControllerClass testController
+    @Shared GrailsControllerClass sampleController
 
     def setupSpec() {
-        testController = new DefaultGrailsControllerClass(TestController)
+        sampleController = new DefaultGrailsControllerClass(SampleController)
     }
 
     void "can fetch tags"() {
@@ -65,7 +62,7 @@ class SwaggerServiceSpec extends SwaggerSpecification {
 
     void "can render different types of Authorization mechanisms"() {
         when:
-        def securityDefinitions = service.getSecurityDefinitions(new Swagger(), [testController])
+        def securityDefinitions = service.getSecurityDefinitions(new Swagger(), [sampleController])
 
         then: "Can build Oauth2"
         securityDefinitions['testoauth2'].scopes.size() == 2
@@ -82,10 +79,10 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         given:
         Swagger swagger = new Swagger(basePath: basePath)
         service.grailsUrlService = Mock(GrailsUrlService)
-        1 * service.grailsUrlService.getPathForAction(testController, _) >> "/api/v1.0/unitTest/index"
+        1 * service.grailsUrlService.getPathForAction(sampleController, _) >> "/api/v1.0/unitTest/index"
 
         when:
-        service.getPaths(swagger, [testController])
+        service.getPaths(swagger, [sampleController])
 
         then:
         swagger.paths.keySet() == [expected] as Set
@@ -96,6 +93,22 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         "/api/v1.0" || "/unitTest/index"
     }
 
+    def "Swagger paths relate to Tags"() {
+        given:
+        Swagger swagger = new Swagger()
+        service.grailsUrlService = Mock(GrailsUrlService)
+        1 * service.grailsUrlService.getPathForAction(tagsController, _) >> "/withTags/list"
+        1 * service.grailsUrlService.getPathForAction(sampleController, _) >> "/sample/index"
+
+        when:
+        service.getPaths(swagger, [tagsController, sampleController])
+
+        then:
+        swagger.paths['/sample/index'].get.tags == ['sample']
+        swagger.paths['/withTags/list'].get.tags == ["with_tag", "with_another_tag"]
+
+    }
+
     @Ignore
     void "determines the HTTP Methods"(){
         expect:
@@ -104,7 +117,7 @@ class SwaggerServiceSpec extends SwaggerSpecification {
 }
 
 @Api(
-        value="unitTest",
+        value="sample",
         authorizations = [
         @Authorization(value="testoauth2", type = "oauth2", scopes = [
                 @AuthorizationScope(scope="resource:read", description = "Read priviledges"),
@@ -113,7 +126,7 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         @Authorization(value="testapikey", type = "apiKey"),
         @Authorization(value="testother", type = "bespoke")
 ])
-class TestController {
+class SampleController {
     @ApiResponses(value=[ @ApiResponse(code = 500, message = "Ups, we messed it up") ])
     def index(){}
 }

@@ -13,12 +13,16 @@ import spock.lang.Specification
 abstract class SwaggerSpecification extends Specification {
 
     @Shared List<GrailsControllerClass> appControllers
-    @Shared GrailsControllerClass testController
+    @Shared GrailsControllerClass petController
+    @Shared GrailsControllerClass tagsController
+
+
 
     def setupSpec() {
         appControllers = []
-        appControllers << new DefaultGrailsControllerClass(PetController)
-        appControllers << new DefaultGrailsControllerClass(WithTagsController)
-        testController = new DefaultGrailsControllerClass(TestController)
+        petController = new DefaultGrailsControllerClass(PetController)
+        appControllers << petController
+        tagsController = new DefaultGrailsControllerClass(WithTagsController)
+        appControllers << tagsController
     }
 }

@@ -25,15 +25,19 @@ class SwaggerService {
     GrailsApplication grailsApplication
     GrailsUrlService grailsUrlService
 
-    Collection<Tag> getTags(Swagger swagger, Collection<GrailsClass> controllers = applicationControllers) {
+    List<Tag> getTags(Swagger swagger, Collection<GrailsClass> controllers = applicationControllers) {
         List<Tag> apiTags = swagger.tags ?: []
         getApplicationApis(controllers).each { Api api ->
-            List<String> tagNames = api.tags().grep() ?: [api.value()]
-            tagNames.each { String tag ->
-                apiTags << new Tag(name: tag, description: api.description())
-            }
+            apiTags += getTagsForApi(api)
         }
         swagger.tags = apiTags
+    }
+
+    private List<Tag> getTagsForApi(Api api) {
+        List<String> tagNames = api.tags().grep() ?: [api.value()]
+        tagNames.collect { String tag ->
+            new Tag(name: tag, description: api.description())
+        }
     }
 
     Map<String, SecuritySchemeDefinition> getSecurityDefinitions(Swagger swagger, Collection<GrailsClass> controllers = applicationControllers) {
@@ -99,6 +103,7 @@ class SwaggerService {
                     apiResponses?.value().each { ApiResponse apiResponse ->
                         operation.response(apiResponse.code(), new Response(description: apiResponse.message()))
                     }
+                    operation.tags(getTagsForApi(api)*.name)
                     path.get(operation)
                 }
             }
