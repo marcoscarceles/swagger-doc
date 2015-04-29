@@ -1,11 +1,16 @@
 package com.makroos.grails.plugins.swaggerdoc
 
+import com.makroos.grails.plugins.swaggerdoc.property.PropertyHelper
 import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiModel
+import com.wordnik.swagger.annotations.ApiModelProperty
 import com.wordnik.swagger.annotations.ApiOperation
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
 import com.wordnik.swagger.annotations.Authorization
 import com.wordnik.swagger.annotations.AuthorizationScope
+import com.wordnik.swagger.models.Model
+import com.wordnik.swagger.models.ModelImpl
 import com.wordnik.swagger.models.Operation
 import com.wordnik.swagger.models.Path
 import com.wordnik.swagger.models.Response
@@ -15,10 +20,17 @@ import com.wordnik.swagger.models.auth.ApiKeyAuthDefinition
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
 import com.wordnik.swagger.models.auth.OAuth2Definition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
+import com.wordnik.swagger.models.properties.ArrayProperty
+import com.wordnik.swagger.models.properties.Property
+import com.wordnik.swagger.models.properties.RefProperty
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass
+import org.springframework.http.HttpStatus
+
+import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 class SwaggerService {
 
@@ -104,11 +116,68 @@ class SwaggerService {
                         operation.response(apiResponse.code(), new Response(description: apiResponse.message()))
                     }
                     operation.tags(getTagsForApi(api)*.name)
+
+                    //Build the Model definitions from the class specified on response
+                    if(action.isAnnotationPresent(ApiOperation)) {
+                        ApiOperation apiOperation = action.getAnnotation(ApiOperation)
+                        Class responseClass = apiOperation.response()
+                        if(responseClass != Void) {
+
+                            //Add the definitions
+                            Map<String, Model> modelDefinitions = fetchDefinitionsFrom(responseClass)
+                            modelDefinitions.each {
+                                swagger.addDefinition(it.key, it.value)
+                            }
+
+                            //Include a reference in the operation response
+                            Response response = operation.responses?.get('200') ?: new Response(description: HttpStatus.OK.reasonPhrase)
+                            String ref = responseClass.getAnnotation(ApiModel)?.value() ?: responseClass.simpleName
+                            Property responseProperty = new RefProperty(ref)
+                            if(apiOperation.responseContainer()) {
+                                assert apiOperation.responseContainer() == 'array', "The only supported responseContainer in @ApiOpration is 'array'"
+                                Property arrayProperty = new ArrayProperty(responseProperty)
+                                responseProperty = arrayProperty
+                            }
+                            response.schema(responseProperty)
+                            operation.response(200,response)
+                        }
+                    }
+
                     path.get(operation)
                 }
             }
         }
         swagger.paths = apiPaths
+    }
+
+    Map<String, Model> fetchDefinitionsFrom(Class clazz) {
+
+        Map<String, Model> models = [:]
+        ModelImpl model = new ModelImpl()
+
+        ApiModel apiModel = clazz.getAnnotation(ApiModel)
+        model.name = apiModel?.value() ?: clazz.simpleName
+        model.description = apiModel?.description() ?: null
+
+        //Get all the fields which could be a property
+        List<Field> propertyCandidates = clazz.declaredFields.findAll { Field field ->
+            !Modifier.isStatic(field.modifiers) && !Modifier.isTransient(field.modifiers)
+        } as List
+
+        //Iterate and build the property objects
+        propertyCandidates.each { Field field ->
+            ApiModelProperty modelProperty = field.getAnnotation(ApiModelProperty)
+            if(!modelProperty || !modelProperty.hidden()) {
+                Property property = PropertyHelper.buildPropertyFor(field)
+                if(property.type  == 'ref') {
+                    models << fetchDefinitionsFrom(field.type)
+                }
+                model.addProperty(property.title, property)
+            }
+        }
+        models << [(model.name):model]
+
+        models
     }
 
     List<GrailsClass> getApplicationControllers() {

@@ -1,6 +1,7 @@
 package com.makroos.grails.plugins.swaggerdoc.test
 
 import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiOperation
 import com.wordnik.swagger.annotations.ApiParam
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
@@ -13,13 +14,19 @@ import grails.converters.JSON
 @Api(value = "pet",
         description = "Pet operations",
         authorizations = [
-        @Authorization(value="petauth", type="basic")
-    ]
+                @Authorization(value="petauth", type="basic")
+        ]
 //        , basePath = "No longer user in swagger-core 1.5.x"
 //        , position = "No longer user in swagger-core 1.5.x"
 )
 class PetController {
 
+    @ApiOperation(
+            value = "Lists pets",
+            notes = "This is an indepth, longer that 120 characters description of what /pet/index does, which is just listing pets, really, nothing more, nothing less",
+            response = Pet,
+            responseContainer = "array"
+    )
     def index() {
         render([
             new Pet(name: "Tod", collarNumber: 42),

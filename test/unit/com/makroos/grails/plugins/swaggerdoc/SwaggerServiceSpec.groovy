@@ -27,6 +27,10 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         sampleController = new DefaultGrailsControllerClass(SampleController)
     }
 
+    def setup() {
+        service.grailsUrlService = Mock(GrailsUrlService)
+    }
+
     void "can fetch tags"() {
         when:
         List<Tag> tags = service.getTags(new Swagger(), appControllers)
@@ -78,7 +82,6 @@ class SwaggerServiceSpec extends SwaggerSpecification {
     def "Swagger paths are relative to the basePath"() {
         given:
         Swagger swagger = new Swagger(basePath: basePath)
-        service.grailsUrlService = Mock(GrailsUrlService)
         1 * service.grailsUrlService.getPathForAction(sampleController, _) >> "/api/v1.0/unitTest/index"
 
         when:
@@ -96,7 +99,6 @@ class SwaggerServiceSpec extends SwaggerSpecification {
     def "Swagger paths relate to Tags"() {
         given:
         Swagger swagger = new Swagger()
-        service.grailsUrlService = Mock(GrailsUrlService)
         1 * service.grailsUrlService.getPathForAction(tagsController, _) >> "/withTags/list"
         1 * service.grailsUrlService.getPathForAction(sampleController, _) >> "/sample/index"
 
@@ -106,7 +108,21 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         then:
         swagger.paths['/sample/index'].get.tags == ['sample']
         swagger.paths['/withTags/list'].get.tags == ["with_tag", "with_another_tag"]
+    }
 
+    def "Builds definitions based on Api Responses"() {
+        given:
+        Swagger swagger = new Swagger()
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/pet/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/pets"
+
+        when:
+        service.getPaths(swagger, [petController])
+
+        then:
+        swagger.definitions['Pet']
+        swagger.definitions['PetBreed']
+        //TODO A Better test
     }
 
     @Ignore
