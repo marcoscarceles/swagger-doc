@@ -19,7 +19,7 @@ class ParameterHelper {
 
     static Parameter getParameterFor(ApiParam apiParam, Method action, String pathStr) {
         String paramType = pathStr.contains(apiParam.name()) ? 'path' : 'query'
-        Class dataType = action.parameterTypes ? action.parameterTypes[0] : String
+        Class dataType = action.getParameterTypes() ? action.parameterTypes[0] : String
         buildParameter(apiParam.name(), apiParam.required(), paramType, dataType)
     }
 
