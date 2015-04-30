@@ -19,14 +19,16 @@ class PropertyHelper {
     private static final Log log = LogFactory.getLog(PropertyHelper)
 
     static String getDatatypeFor(Class clazz) {
+
         if(clazz in [Boolean, boolean, Date, Double, double, Float, float, Integer, Long, long, String, Object]) {
             return clazz.simpleName.toLowerCase()
         } else if (clazz == int) {
             return 'integer'
         } else if (Enum.isAssignableFrom(clazz)) {
             return 'string'
-        }
-        else {
+        } else if (Map.isAssignableFrom(clazz)) {
+            return 'object'
+        } else {
             return 'complex'
         }
     }
