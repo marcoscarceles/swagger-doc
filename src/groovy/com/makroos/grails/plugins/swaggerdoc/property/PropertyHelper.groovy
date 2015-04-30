@@ -6,6 +6,8 @@ import com.wordnik.swagger.models.properties.ArrayProperty
 import com.wordnik.swagger.models.properties.Property
 import com.wordnik.swagger.models.properties.PropertyBuilder
 import com.wordnik.swagger.models.properties.RefProperty
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 
 import java.lang.reflect.Field
 
@@ -14,11 +16,15 @@ import java.lang.reflect.Field
  */
 class PropertyHelper {
 
+    private static final Log log = LogFactory.getLog(PropertyHelper)
+
     static String getDatatypeFor(Class clazz) {
-        if(clazz in [Boolean, boolean, Date, Double, double, Float, float, Integer, Long, long, String]) {
+        if(clazz in [Boolean, boolean, Date, Double, double, Float, float, Integer, Long, long, String, Object]) {
             return clazz.simpleName.toLowerCase()
         } else if (clazz == int) {
             return 'integer'
+        } else if (Enum.isAssignableFrom(clazz)) {
+            return 'string'
         }
         else {
             return 'complex'
@@ -47,6 +53,8 @@ class PropertyHelper {
                 return [type: "string", format: "date-time"]
             case "complex":
                 return [type: '$ref']
+            case "object":
+                return [type: 'object']
             case "null":
             case "":
             case null:
@@ -57,12 +65,17 @@ class PropertyHelper {
     }
 
     static Property buildPropertyFor(Field field) {
+        log.debug("Building property for field ${field.name} of type ${field.type}")
         ApiModelProperty modelProperty = field.getAnnotation(ApiModelProperty)
         Class clazz = field.type
 
         def datatype = modelProperty?.dataType() ?: getDatatypeFor(clazz)
         def typeFormat = getTypeFormatFor(datatype)
-        Property property = PropertyBuilder.build(typeFormat.type,typeFormat.format, [:])
+        Map propertyArgs = [:]
+        if(Enum.isAssignableFrom(clazz)) {
+            propertyArgs['enum'] = (clazz).values()*.toString() as List
+        }
+        Property property = PropertyBuilder.build(typeFormat.type,typeFormat.format, propertyArgs)
 
         if(List.isAssignableFrom(clazz) || Set.isAssignableFrom(clazz)) {
             ArrayProperty arrayProperty = new ArrayProperty(property)

@@ -102,6 +102,7 @@ class SwaggerService {
                 grailsController.clazz.methods.findAll {
                     it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses)
                 }.each { Method action ->
+                    log.debug("Adding path for ${grailsController.shortName}.${action.name}()")
                     String pathStr = grailsUrlService.getPathForAction(grailsController, action)
                     pathStr -= swagger.basePath
                     if (!apiPaths.containsKey(pathStr)) {
@@ -124,8 +125,7 @@ class SwaggerService {
                         if(responseClass != Void) {
 
                             //Add the definitions
-                            Map<String, Model> modelDefinitions = fetchDefinitionsFrom(responseClass)
-                            modelDefinitions.each {
+                            fetchDefinitionsFrom(responseClass).each {
                                 swagger.addDefinition(it.key, it.value)
                             }
 
@@ -151,6 +151,8 @@ class SwaggerService {
     }
 
     Map<String, Model> fetchDefinitionsFrom(Class clazz) {
+
+        log.debug("Adding definition for ${clazz.simpleName}")
 
         Map<String, Model> models = [:]
         ModelImpl model = new ModelImpl()

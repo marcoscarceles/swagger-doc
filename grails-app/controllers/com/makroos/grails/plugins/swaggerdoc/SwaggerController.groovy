@@ -6,11 +6,13 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class SwaggerController {
 
+    static namespace = "swagger-doc"
+
     GrailsApplication grailsApplication
     SwaggerService swaggerService
 
     def index() {
-        Map swaggerConfig = grailsApplication.config.swagger as Map
+        Map swaggerConfig = grailsApplication.config.grails.plugins.swaggerdoc.swagger as Map
         def swagger = new Swagger(swaggerConfig)
         swaggerService.getTags(swagger)
         swaggerService.getPaths(swagger)

@@ -23,4 +23,7 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
+
+    debug 'grails.app.services.com.makroos.grails.plugins.swaggerdoc'
+    debug 'com.makroos.grails.plugins.swaggerdoc'
 }

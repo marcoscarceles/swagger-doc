@@ -43,4 +43,13 @@ class PetController {
         render new Pet(name:"Rudolph", collarNumber: 1) as JSON
     }
 
+    @ApiOperation(
+            value = "Add a pet the store",
+            response = APIResponse
+    )
+    @ApiResponses([@ApiResponse(code=200,message = 'successfully saved')])
+    def save() {
+
+    }
+
 }

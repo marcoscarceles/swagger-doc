@@ -8,7 +8,7 @@ class UrlMappings {
             }
         }
 
-        "/api-doc"(controller: 'swagger', action:'index')
+        "/api-doc"(namespace: 'swagger-doc', controller: 'swagger', action:'index')
 
         "/"(view:"/index")
         "500"(view:'/error')
