@@ -21,7 +21,7 @@ import grails.util.Metadata
 class SwaggerControllerSpec  extends SwaggerSpecification {
 
     def setupSpec() {
-        config.swagger = [
+        config.swaggerdoc.swagger = [
             info : [
                 version : "1.0.0",
                 title : grails.util.Metadata.current['app.name']

@@ -12,7 +12,7 @@ class SwaggerController {
     SwaggerService swaggerService
 
     def index() {
-        Map swaggerConfig = grailsApplication.config.grails.plugins.swaggerdoc.swagger as Map
+        Map swaggerConfig = grailsApplication.config.swaggerdoc.swagger as Map
         def swagger = new Swagger(swaggerConfig)
         swaggerService.getTags(swagger)
         swaggerService.getPaths(swagger)

@@ -76,13 +76,13 @@ making use of the bare swagger-core annotations without needing to use JAX-RS.
     }
 
     private void mergeConfig(GrailsApplication grailsApplication) {
-        ConfigObject swaggerAppConfig = grailsApplication.config.swagger
+        ConfigObject swaggerAppConfig = grailsApplication.config.swaggerdoc
         ConfigSlurper slurper = new ConfigSlurper(Environment.getCurrent().getName());
         ConfigObject swaggerDefaultConfig = slurper.parse(grailsApplication.classLoader.loadClass("SwaggerConfig"))
 
         ConfigObject mergedConfig = new ConfigObject();
-        mergedConfig.putAll(swaggerDefaultConfig.swagger.merge(swaggerAppConfig))
+        mergedConfig.putAll(swaggerDefaultConfig.swaggerdoc.merge(swaggerAppConfig))
 
-        grailsApplication.config.swagger = mergedConfig;
+        grailsApplication.config.swaggerdoc = mergedConfig;
     }
 }
