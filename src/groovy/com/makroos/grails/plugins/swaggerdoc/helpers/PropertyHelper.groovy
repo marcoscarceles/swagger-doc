@@ -1,4 +1,4 @@
-package com.makroos.grails.plugins.swaggerdoc.property
+package com.makroos.grails.plugins.swaggerdoc.helpers
 
 import com.wordnik.swagger.annotations.ApiModel
 import com.wordnik.swagger.annotations.ApiModelProperty
@@ -29,6 +29,10 @@ class PropertyHelper {
         else {
             return 'complex'
         }
+    }
+
+    static Map<String,String> getTypeFormatFor(Class clazz) {
+        getTypeFormatFor(getDatatypeFor(clazz))
     }
 
     static Map<String,String> getTypeFormatFor(String datatype) {

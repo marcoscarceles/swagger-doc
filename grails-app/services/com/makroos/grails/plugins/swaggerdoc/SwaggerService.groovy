@@ -1,10 +1,14 @@
 package com.makroos.grails.plugins.swaggerdoc
 
-import com.makroos.grails.plugins.swaggerdoc.property.PropertyHelper
+import com.makroos.grails.plugins.swaggerdoc.helpers.ParameterHelper
+import com.makroos.grails.plugins.swaggerdoc.helpers.PropertyHelper
 import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiImplicitParam
+import com.wordnik.swagger.annotations.ApiImplicitParams
 import com.wordnik.swagger.annotations.ApiModel
 import com.wordnik.swagger.annotations.ApiModelProperty
 import com.wordnik.swagger.annotations.ApiOperation
+import com.wordnik.swagger.annotations.ApiParam
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
 import com.wordnik.swagger.annotations.Authorization
@@ -100,7 +104,7 @@ class SwaggerService {
             Api api = grailsController.clazz.getAnnotation(Api)
             if (api) {
                 grailsController.clazz.methods.findAll {
-                    it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses)
+                    it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses) || it.getAnnotation(ApiParam) || it.getAnnotation(ApiImplicitParams)
                 }.each { Method action ->
                     log.debug("Adding path for ${grailsController.shortName}.${action.name}()")
                     String pathStr = grailsUrlService.getPathForAction(grailsController, action)
@@ -112,11 +116,25 @@ class SwaggerService {
 
                     //TODO: Support multiple HTTP Methods
                     Operation operation = new Operation()
+                    path.get(operation)
+
                     ApiResponses apiResponses = action.getAnnotation(ApiResponses)
                     apiResponses?.value().each { ApiResponse apiResponse ->
                         operation.response(apiResponse.code(), new Response(description: apiResponse.message()))
                     }
                     operation.tags(getTagsForApi(api)*.name)
+
+                    //Include the parameters
+                    if(action.isAnnotationPresent(ApiParam)) {
+                        ApiParam apiParam = action.getAnnotation(ApiParam)
+                        operation.addParameter(ParameterHelper.getParameterFor(apiParam, action, pathStr))
+                    }
+                    if(action.isAnnotationPresent(ApiImplicitParams)) {
+                        ApiImplicitParams implictParams = action.getAnnotation(ApiImplicitParams)
+                        implictParams.value().each { ApiImplicitParam implicitParam ->
+                            operation.addParameter(ParameterHelper.getParameterFor(implicitParam, pathStr))
+                        }
+                    }
 
                     //Build the Model definitions from the class specified on response
                     if(action.isAnnotationPresent(ApiOperation)) {
@@ -142,8 +160,6 @@ class SwaggerService {
                             operation.response(200,response)
                         }
                     }
-
-                    path.get(operation)
                 }
             }
         }

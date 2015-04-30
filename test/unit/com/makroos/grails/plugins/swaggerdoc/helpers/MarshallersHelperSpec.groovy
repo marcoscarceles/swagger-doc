@@ -1,10 +1,9 @@
-package com.makroos.grails.plugins.swaggerdoc.marshaller
+package com.makroos.grails.plugins.swaggerdoc.helpers
 
 import com.wordnik.swagger.models.Info
 import com.wordnik.swagger.models.Path
 import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
-import grails.converters.JSON
 import spock.lang.Specification
 
 /**

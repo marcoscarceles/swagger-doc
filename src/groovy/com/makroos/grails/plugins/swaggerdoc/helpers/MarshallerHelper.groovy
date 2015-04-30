@@ -1,4 +1,4 @@
-package com.makroos.grails.plugins.swaggerdoc.marshaller
+package com.makroos.grails.plugins.swaggerdoc.helpers
 
 import com.wordnik.swagger.models.Model
 import com.wordnik.swagger.models.Path

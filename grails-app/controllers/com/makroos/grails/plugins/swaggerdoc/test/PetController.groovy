@@ -1,6 +1,8 @@
 package com.makroos.grails.plugins.swaggerdoc.test
 
 import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiImplicitParam
+import com.wordnik.swagger.annotations.ApiImplicitParams
 import com.wordnik.swagger.annotations.ApiOperation
 import com.wordnik.swagger.annotations.ApiParam
 import com.wordnik.swagger.annotations.ApiResponse
@@ -38,8 +40,13 @@ class PetController {
             @ApiResponse(code=404,message = "Pet Not Found"),
             @ApiResponse(code=410,message = "Pet Gone")
     ])
-    @ApiParam(name="id")
-    def show(Integer id) {
+    @ApiParam(name="id", required=true)
+    def show(Long id) {
+        render new Pet(name:"Rudolph", collarNumber: 1) as JSON
+    }
+
+    @ApiImplicitParams([@ApiImplicitParam(name="id",required=true,dataType = "integer", paramType="path")])
+    def buy(Integer id) {
         render new Pet(name:"Rudolph", collarNumber: 1) as JSON
     }
 

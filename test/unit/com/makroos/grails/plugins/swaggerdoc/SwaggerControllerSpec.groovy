@@ -1,6 +1,6 @@
 package com.makroos.grails.plugins.swaggerdoc
 
-import com.makroos.grails.plugins.swaggerdoc.marshaller.MarshallerHelper
+import com.makroos.grails.plugins.swaggerdoc.helpers.MarshallerHelper
 import com.wordnik.swagger.models.Info
 import com.wordnik.swagger.models.Operation
 import com.wordnik.swagger.models.Path

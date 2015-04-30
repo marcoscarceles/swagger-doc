@@ -1,4 +1,4 @@
-package com.makroos.grails.plugins.swaggerdoc.property
+package com.makroos.grails.plugins.swaggerdoc.helpers
 
 import com.makroos.grails.plugins.swaggerdoc.test.Breed
 import com.makroos.grails.plugins.swaggerdoc.test.Pet

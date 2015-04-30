@@ -10,6 +10,8 @@ import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
+import com.wordnik.swagger.models.parameters.Parameter
+import com.wordnik.swagger.models.parameters.PathParameter
 import grails.test.mixin.TestFor
 import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass
@@ -62,6 +64,7 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         securityDefinitions['petauth'].type == 'basic'
     }
 
+    @Ignore
     void "can build the scopes out of the @Api"() {
     }
 
@@ -111,10 +114,39 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         swagger.paths['/withTags/list'].get.tags == ["with_tag", "with_another_tag"]
     }
 
+    def "Swagger paths describe their parameters"() {
+        given:
+        Swagger swagger = new Swagger(basePath: '/api')
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'buy'}) >> "/api/pet/buy/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
+
+        when:
+        service.getPaths(swagger, [petController])
+        Parameter showParameter = swagger.paths['/pet/{id}'].get.parameters[0]
+        Parameter buyParameter = swagger.paths['/pet/buy/{id}'].get.parameters[0]
+
+        then:
+        showParameter.name == "id"
+        showParameter.in == "path"
+        showParameter.required == true
+        showParameter.type == "integer"
+        showParameter.format == "int64"
+
+        and:
+        buyParameter.name == "id"
+        buyParameter.in == "path"
+        buyParameter.required == true
+        buyParameter.type == "integer"
+        buyParameter.format == "int32"
+    }
+
     def "Builds definitions based on Api Responses"() {
         given:
         Swagger swagger = new Swagger()
         _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'buy'}) >> "/api/pet/buy/{id}"
         _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
         _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
 
