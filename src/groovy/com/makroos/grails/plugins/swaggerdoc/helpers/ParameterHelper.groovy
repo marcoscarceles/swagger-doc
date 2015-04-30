@@ -9,6 +9,8 @@ import com.wordnik.swagger.models.parameters.HeaderParameter
 import com.wordnik.swagger.models.parameters.Parameter
 import com.wordnik.swagger.models.parameters.PathParameter
 import com.wordnik.swagger.models.parameters.QueryParameter
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 
 import java.lang.reflect.Method
 
@@ -17,8 +19,11 @@ import java.lang.reflect.Method
  */
 class ParameterHelper {
 
+    private static final Log log = LogFactory.getLog(ParameterHelper)
+
     static Parameter getParameterFor(ApiParam apiParam, Method action, String pathStr) {
         String paramType = pathStr.contains(apiParam.name()) ? 'path' : 'query'
+        log.debug("Trying to identify @ApiParam datatype from action parameters ${action.getParameterTypes()}, using ${(action.parameterTypes as List)?.get(0)}")
         Class dataType = action.getParameterTypes() ? action.parameterTypes[0] : String
         buildParameter(apiParam.name(), apiParam.required(), paramType, dataType)
     }
@@ -30,6 +35,7 @@ class ParameterHelper {
     }
 
     private static Parameter buildParameter(String name, boolean required, String paramType, def dataType) {
+        log.debug("Building parameter with name=$name, required=$required, paramType=$paramType and dataType=$dataType")
         Parameter parameter = getParameterofType(paramType)
         parameter.name = name
         parameter.required = required
