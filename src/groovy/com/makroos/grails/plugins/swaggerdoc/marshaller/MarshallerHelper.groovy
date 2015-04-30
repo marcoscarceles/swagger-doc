@@ -10,6 +10,7 @@ import org.codehaus.groovy.runtime.DefaultGroovyMethods
 /**
  * Created by @marcos-carceles on 15/04/15.
  */
+//TODO: Replace with Jackson marshaller
 class MarshallerHelper {
 
     private static final Closure DEFAULT_JSON_MARSHALLER = { def it ->

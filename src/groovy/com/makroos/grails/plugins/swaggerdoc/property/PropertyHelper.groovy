@@ -79,7 +79,7 @@ class PropertyHelper {
 
         if(List.isAssignableFrom(clazz) || Set.isAssignableFrom(clazz)) {
             ArrayProperty arrayProperty = new ArrayProperty(property)
-            arrayProperty.uniqueItems == Set.isAssignableFrom(clazz)
+            arrayProperty.uniqueItems = Set.isAssignableFrom(clazz)
             property = arrayProperty
         }
 

@@ -1,5 +1,6 @@
 package com.makroos.grails.plugins.swaggerdoc
 
+import com.makroos.grails.plugins.swaggerdoc.test.Code
 import com.wordnik.swagger.annotations.Api
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
@@ -113,16 +114,31 @@ class SwaggerServiceSpec extends SwaggerSpecification {
     def "Builds definitions based on Api Responses"() {
         given:
         Swagger swagger = new Swagger()
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/pet/{id}"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/pets"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
 
         when:
         service.getPaths(swagger, [petController])
 
         then:
-        swagger.definitions['Pet']
-        swagger.definitions['PetBreed']
-        //TODO A Better test
+        swagger.definitions.keySet() == ['Pet', 'PetBreed', 'APIResponse'] as Set
+
+        and:
+        swagger.definitions.Pet.required == ['collarNumber']
+        swagger.definitions.Pet.properties.allergies.items.type == 'string'
+        !swagger.definitions.Pet.properties.bittenSomeone
+        swagger.definitions.Pet.properties.breed.$ref == '#/definitions/PetBreed'
+
+        and:
+        swagger.definitions.PetBreed.description == "Type of Pet"
+        swagger.definitions.PetBreed.properties.subspecies.type == 'array'
+        swagger.definitions.PetBreed.properties.subspecies.uniqueItems == true
+
+        and:
+        swagger.definitions.APIResponse.properties.code.type == 'string'
+        swagger.definitions.APIResponse.properties.code.enum == Code.values()*.toString()
+        swagger.definitions.APIResponse.properties.meta.type == 'object'
     }
 
     @Ignore
