@@ -1,3 +1,5 @@
+import org.springframework.http.HttpStatus
+
 swaggerdoc {
     swagger {
         info {
@@ -7,5 +9,11 @@ swaggerdoc {
         basePath = "/api"
         paths = [:]
         schemes = ["http"]
+    }
+    defaults {
+        responses = [
+            200: 'OK',
+            404: 'Not Found'
+        ]
     }
 }

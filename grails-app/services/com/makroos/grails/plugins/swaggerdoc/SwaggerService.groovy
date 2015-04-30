@@ -160,6 +160,13 @@ class SwaggerService {
                             operation.response(200,response)
                         }
                     }
+
+                    //If no response was specified, add default responses
+                    if(!operation.responses) {
+                        grailsApplication.config.swaggerdoc.defaults.responses.each { k, v ->
+                            operation.response(k, new Response(description: v))
+                        }
+                    }
                 }
             }
         }
