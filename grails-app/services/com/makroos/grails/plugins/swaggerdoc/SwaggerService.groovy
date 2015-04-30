@@ -108,7 +108,7 @@ class SwaggerService {
                 }.each { Method action ->
                     log.debug("Adding path for ${grailsController.shortName}.${action.name}()")
                     String pathStr = grailsUrlService.getPathForAction(grailsController, action)
-                    pathStr -= swagger.basePath
+                    pathStr = (pathStr - swagger.basePath) ?: "/"
                     if (!apiPaths.containsKey(pathStr)) {
                         apiPaths[pathStr] = new Path()
                     }
