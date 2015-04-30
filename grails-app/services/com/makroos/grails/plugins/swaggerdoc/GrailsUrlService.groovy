@@ -18,9 +18,17 @@ class GrailsUrlService {
         String controllerName = grailsController.logicalPropertyName
 
         List<String> parameterNames = getParameterNames(action)
-        Map linkParameters = parameterNames.collectEntries { [(it): "{$it}"] }
+        Map queryPameters = parameterNames.collectEntries { [(it): "{$it}"] }
+        Map linkData = [
+                controller: controllerName,
+                action: action.name,
+                params: queryPameters
+        ]
+        if(grailsController.namespace) {
+            linkData << [namespace: grailsController.namespace]
+        }
 
-        String grailsLink = grailsLinkGenerator.link(controller: controllerName, action: action.name, params: linkParameters).decodeURL()
+        String grailsLink = grailsLinkGenerator.link(linkData).decodeURL()
         grailsLink.split(/\?/)[0]
     }
 
