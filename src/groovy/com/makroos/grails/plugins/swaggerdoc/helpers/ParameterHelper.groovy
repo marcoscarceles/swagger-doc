@@ -23,7 +23,12 @@ class ParameterHelper {
 
     static Parameter getParameterFor(ApiParam apiParam, Method action, String pathStr) {
         String paramType = pathStr.contains(apiParam.name()) ? 'path' : 'query'
-        log.debug("Trying to identify @ApiParam datatype from action parameters ${action.getParameterTypes()}, using ${(action.parameterTypes as List)?.get(0)}")
+        log.debug("Trying to identify @ApiParam datatype from action parameters ${action.getParameterTypes()}")
+        if(action.parameterTypes) {
+            log.debug("The first parameter type is ${action.parameterTypes[0]}")
+        } else {
+            log.debug("There aren't any parameter types, falling back to String")
+        }
         Class dataType = action.getParameterTypes() ? action.parameterTypes[0] : String
         buildParameter(apiParam.name(), apiParam.required(), paramType, dataType)
     }
