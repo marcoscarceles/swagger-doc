@@ -6,7 +6,6 @@ import com.wordnik.swagger.annotations.ApiParam
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
-import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 
 /**

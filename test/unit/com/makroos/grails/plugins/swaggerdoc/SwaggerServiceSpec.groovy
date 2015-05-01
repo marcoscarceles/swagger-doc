@@ -11,7 +11,6 @@ import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
 import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
 import com.wordnik.swagger.models.parameters.Parameter
-import com.wordnik.swagger.models.parameters.PathParameter
 import grails.test.mixin.TestFor
 import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass

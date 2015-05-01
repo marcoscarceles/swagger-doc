@@ -1,5 +1,6 @@
 package com.makroos.grails.plugins.swaggerdoc
 
+import com.makroos.grails.plugins.swaggerdoc.helpers.GrailsControllerHelper
 import com.makroos.grails.plugins.swaggerdoc.helpers.ParameterHelper
 import com.makroos.grails.plugins.swaggerdoc.helpers.PropertyHelper
 import com.wordnik.swagger.annotations.Api
@@ -103,9 +104,7 @@ class SwaggerService {
         controllers.each { GrailsControllerClass grailsController ->
             Api api = grailsController.clazz.getAnnotation(Api)
             if (api) {
-                grailsController.clazz.methods.findAll {
-                    it.getAnnotation(ApiOperation) || it.getAnnotation(ApiResponses) || it.getAnnotation(ApiParam) || it.getAnnotation(ApiImplicitParams)
-                }.each { Method action ->
+                GrailsControllerHelper.getApiActions(grailsController).each { Method action ->
                     log.debug("Adding path for ${grailsController.shortName}.${action.name}()")
                     String pathStr = grailsUrlService.getPathForAction(grailsController, action)
                     pathStr = (pathStr - swagger.basePath) ?: "/"
