@@ -2,6 +2,7 @@ package com.makroos.grails.plugins.swaggerdoc.helpers
 
 import com.wordnik.swagger.models.Model
 import com.wordnik.swagger.models.Path
+import com.wordnik.swagger.models.Scheme
 import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.properties.Property
 import com.wordnik.swagger.models.properties.RefProperty
@@ -55,6 +56,10 @@ class MarshallerHelper {
         json
     }
 
+    private static final Closure SCHEME_MARSHALLER = { Scheme it ->
+            it.toValue()
+    }
+
     public static final MARSHALLER_WRAPPER = { def it ->
         switch(true) {
             case Swagger.isAssignableFrom(it.class): return SWAGGER_MARSHALLER.call(it)
@@ -62,6 +67,7 @@ class MarshallerHelper {
             case Model.isAssignableFrom(it.class) : return MODEL_MARSHALLER.call(it)
             case RefProperty.isAssignableFrom(it.class) : return REF_MARSHALLER.call(it)
             case Property.isAssignableFrom(it.class) : return PROPERTY_MARSHALLER.call(it)
+            case Scheme.isAssignableFrom(it.class) : return SCHEME_MARSHALLER.call(it)
             default: return DEFAULT_JSON_MARSHALLER.call(it)
         }
     }

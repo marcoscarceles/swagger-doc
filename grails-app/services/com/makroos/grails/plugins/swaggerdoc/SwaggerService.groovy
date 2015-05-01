@@ -19,6 +19,7 @@ import com.wordnik.swagger.models.ModelImpl
 import com.wordnik.swagger.models.Operation
 import com.wordnik.swagger.models.Path
 import com.wordnik.swagger.models.Response
+import com.wordnik.swagger.models.Scheme
 import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.ApiKeyAuthDefinition
@@ -113,9 +114,15 @@ class SwaggerService {
                     }
                     Path path = apiPaths[pathStr]
 
-                    //TODO: Support multiple HTTP Methods
                     Operation operation = new Operation()
-                    path.get(operation)
+                    String httpMethod = "get" //Default to GET
+
+                    if(api.produces()) {
+                        operation.produces(api.produces())
+                    }
+                    if(api.consumes()) {
+                        operation.consumes(api.consumes())
+                    }
 
                     ApiResponses apiResponses = action.getAnnotation(ApiResponses)
                     apiResponses?.value().each { ApiResponse apiResponse ->
@@ -126,18 +133,41 @@ class SwaggerService {
                     //Include the parameters
                     if(action.isAnnotationPresent(ApiParam)) {
                         ApiParam apiParam = action.getAnnotation(ApiParam)
-                        operation.addParameter(ParameterHelper.getParameterFor(apiParam, action, pathStr))
+                        operation.parameter(ParameterHelper.getParameterFor(apiParam, action, pathStr))
                     }
                     if(action.isAnnotationPresent(ApiImplicitParams)) {
                         ApiImplicitParams implictParams = action.getAnnotation(ApiImplicitParams)
                         implictParams.value().each { ApiImplicitParam implicitParam ->
-                            operation.addParameter(ParameterHelper.getParameterFor(implicitParam, pathStr))
+                            operation.parameter(ParameterHelper.getParameterFor(implicitParam, pathStr))
                         }
                     }
 
-                    //Build the Model definitions from the class specified on response
+                    //If present, Add Operation metadata
                     if(action.isAnnotationPresent(ApiOperation)) {
                         ApiOperation apiOperation = action.getAnnotation(ApiOperation)
+                        if(apiOperation.value()) {
+                            operation.summary(apiOperation.value())
+                        }
+                        if(apiOperation.notes()) {
+                            operation.description(apiOperation.notes())
+                        }
+                        if(apiOperation.produces() && !(apiOperation.produces() in operation.produces)) {
+                            operation.produces(apiOperation.produces())
+                        }
+                        if(apiOperation.consumes() && !(apiOperation.consumes() in operation.consumes)) {
+                            operation.consumes(apiOperation.consumes())
+                        }
+                        if(apiOperation.nickname()) {
+                            operation.operationId = apiOperation.nickname()
+                        }
+                        if(apiOperation.httpMethod()) {
+                            httpMethod = apiOperation.httpMethod().toLowerCase()
+                        }
+                        if(Scheme.forValue(apiOperation.protocols())) {
+                            operation.scheme(Scheme.forValue(apiOperation.protocols()))
+                        }
+
+                        //Build the Model definitions from the class specified on response
                         Class responseClass = apiOperation.response()
                         if(responseClass != Void) {
 
@@ -166,6 +196,8 @@ class SwaggerService {
                             operation.response(k, new Response(description: v))
                         }
                     }
+
+                    path.set(httpMethod, operation)
                 }
             }
         }
@@ -196,7 +228,7 @@ class SwaggerService {
                 if(property.type  == 'ref') {
                     models << fetchDefinitionsFrom(field.type)
                 }
-                model.addProperty(property.title, property)
+                model.property(property.title, property)
             }
         }
         models << [(model.name):model]

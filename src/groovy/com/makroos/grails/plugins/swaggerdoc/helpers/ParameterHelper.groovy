@@ -22,18 +22,19 @@ class ParameterHelper {
     static Parameter getParameterFor(ApiParam apiParam, Method action, String pathStr) {
         String paramType = pathStr.contains(apiParam.name()) ? 'path' : 'query'
         Class dataType = action.getParameterTypes() ? action.parameterTypes[0] : String
-        buildParameter(apiParam.name(), apiParam.required(), paramType, dataType)
+        buildParameter(apiParam.name(), apiParam.value(), apiParam.required(), paramType, dataType)
     }
 
     static Parameter getParameterFor(ApiImplicitParam apiParam, String pathStr) {
         String paramType = apiParam.paramType() ?: pathStr.contains(apiParam.name()) ? 'path' : 'query'
         String dataType = apiParam.dataType() ?: 'string'
-        buildParameter(apiParam.name(), apiParam.required(), paramType, dataType)
+        buildParameter(apiParam.name(), apiParam.value(), apiParam.required(), paramType, dataType)
     }
 
-    private static Parameter buildParameter(String name, boolean required, String paramType, def dataType) {
+    private static Parameter buildParameter(String name, String description, boolean required, String paramType, def dataType) {
         Parameter parameter = getParameterofType(paramType)
         parameter.name = name
+        parameter.description = description
         parameter.required = required
         if(parameter.hasProperty('type')) {
             Map typeFormat = PropertyHelper.getTypeFormatFor(dataType ?: 'string')
