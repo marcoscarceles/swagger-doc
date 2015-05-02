@@ -38,8 +38,8 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
         compile 'com.wordnik:swagger-models:1.5.1-M2'
-        test 'io.swagger:swagger-parser:1.0.5'
-        test 'com.github.fge:json-schema-validator:2.2.5'
+        compile 'io.swagger:swagger-parser:1.0.5'
+        compile 'com.github.fge:json-schema-validator:2.2.5'
 
         // Latest httpcore and httpmime for Coveralls plugin
         build 'org.apache.httpcomponents:httpcore:4.3.2'
@@ -63,6 +63,7 @@ grails.project.dependency.resolution = {
         build(':coveralls:0.1.3') {
             export = false
         }
+        compile ":asset-pipeline:2.1.5"
     }
 }
 

@@ -9,6 +9,8 @@ class UrlMappings {
         }
 
         "/api-doc"(namespace: 'swagger-doc', controller: 'swagger', action:'index')
+        "/swagger.json"(namespace: 'swagger-doc', controller: 'swagger', action:'swagger')
+        "/validate-swagger"(namespace: 'swagger-doc', controller: 'swagger', action:'validate')
 
         "/"(view:"/index")
         "500"(view:'/error')
