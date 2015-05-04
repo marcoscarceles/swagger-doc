@@ -41,6 +41,9 @@ grails.project.dependency.resolution = {
         compile 'io.swagger:swagger-parser:1.0.5'
         compile 'com.github.fge:json-schema-validator:2.2.5'
 
+        // For swagger-model standard marshalling
+        //compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+
         // Latest httpcore and httpmime for Coveralls plugin
         build 'org.apache.httpcomponents:httpcore:4.3.2'
         build 'org.apache.httpcomponents:httpclient:4.3.2'

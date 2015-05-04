@@ -1,13 +1,7 @@
 package com.makroos.grails.plugins.swaggerdoc
 
-import com.makroos.grails.plugins.swaggerdoc.helpers.MarshallerHelper
-import com.wordnik.swagger.models.Info
-import com.wordnik.swagger.models.Operation
-import com.wordnik.swagger.models.Path
-import com.wordnik.swagger.models.Response
 import com.wordnik.swagger.models.Swagger
-import com.wordnik.swagger.models.Tag
-import com.wordnik.swagger.models.auth.SecuritySchemeDefinition
+import com.wordnik.swagger.util.Json
 import grails.converters.JSON
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
@@ -29,9 +23,9 @@ class SwaggerControllerSpec  extends SwaggerSpecification {
             basePath : "/api",
             paths : [:]
         ]
-        [Swagger, Info, Tag, Path, Operation, Response, SecuritySchemeDefinition].each {
-            JSON.registerObjectMarshaller(it,MarshallerHelper.MARSHALLER_WRAPPER)
-        }
+        JSON.registerObjectMarshaller(Swagger, { Swagger swagger ->
+            JSON.parse(Json.mapper().writeValueAsString(swagger))
+        })
     }
 
     def setup() {
