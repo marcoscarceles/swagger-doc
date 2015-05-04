@@ -41,7 +41,7 @@ class SwaggerControllerSpec  extends SwaggerSpecification {
     void "index renders swagger info from configuration"() {
         when:
         params.format='json'
-        controller.index()
+        controller.swagger()
 
         then:
         def json = controller.response.json
@@ -51,7 +51,7 @@ class SwaggerControllerSpec  extends SwaggerSpecification {
 
     void "index renders the tags existing in the application"() {
         when:
-        controller.index()
+        controller.swagger()
 
         then:
         def json = controller.response.json
@@ -65,7 +65,7 @@ class SwaggerControllerSpec  extends SwaggerSpecification {
 
     void "index renders the security definitions"() {
         when:
-        controller.index()
+        controller.swagger()
         then:
         def json = controller.response.json
         json.securityDefinitions['petauth'] == [type: 'basic']
