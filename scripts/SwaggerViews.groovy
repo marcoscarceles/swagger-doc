@@ -1,4 +1,5 @@
 import org.apache.tools.ant.DirectoryScanner
+import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -16,8 +17,9 @@ target(swaggerViews: "Creates customizable Swagger-UI views") {
     swaggerUIDirs.each { dir ->
         println "Copying files to ${dir} ..."
         new File(dir).mkdirs()
+        String basePath = GrailsPluginUtils.getPluginDirForName('swagger-doc').file.absolutePath
         copy(todir: dir) {
-            fileset(dir:"scripts/swagger-views/${dir}")
+            fileset(dir:"${basePath}/scripts/swagger-views/${dir}")
         }
         println "Done"
     }
