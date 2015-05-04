@@ -9,7 +9,7 @@ class SwaggerSpec extends Specification {
 
     def "swagger resource matches specification"() {
         when:
-        String swaggerData = 'http://localhost:8080/endource/swagger.json'.toURL().text
+        String swaggerData = 'http://localhost:8080/swagger.json'.toURL().text
         then:
         new SwaggerValidationService().validate(swaggerData)
     }
