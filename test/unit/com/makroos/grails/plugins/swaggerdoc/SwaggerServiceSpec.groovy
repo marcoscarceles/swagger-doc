@@ -1,11 +1,13 @@
 package com.makroos.grails.plugins.swaggerdoc
 
 import com.makroos.grails.plugins.swaggerdoc.test.Code
+import com.makroos.grails.plugins.swaggerdoc.test.Dog
 import com.wordnik.swagger.annotations.Api
 import com.wordnik.swagger.annotations.ApiResponse
 import com.wordnik.swagger.annotations.ApiResponses
 import com.wordnik.swagger.annotations.Authorization
 import com.wordnik.swagger.annotations.AuthorizationScope
+import com.wordnik.swagger.models.Model
 import com.wordnik.swagger.models.Swagger
 import com.wordnik.swagger.models.Tag
 import com.wordnik.swagger.models.auth.BasicAuthDefinition
@@ -31,6 +33,12 @@ class SwaggerServiceSpec extends SwaggerSpecification {
 
     def setup() {
         service.grailsUrlService = Mock(GrailsUrlService)
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'buy'}) >> "/api/pet/buy/{id}"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'dogs'}) >> "/api/pet/dogs"
+        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
+
     }
 
     void "can fetch tags"() {
@@ -116,10 +124,6 @@ class SwaggerServiceSpec extends SwaggerSpecification {
     def "Swagger paths describe their parameters"() {
         given:
         Swagger swagger = new Swagger(basePath: '/api')
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'buy'}) >> "/api/pet/buy/{id}"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
 
         when:
         service.getPaths(swagger, [petController])
@@ -144,16 +148,12 @@ class SwaggerServiceSpec extends SwaggerSpecification {
     def "Builds definitions based on Api Responses"() {
         given:
         Swagger swagger = new Swagger()
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'show'}) >> "/api/pet/{id}"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'buy'}) >> "/api/pet/buy/{id}"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'index'}) >> "/api/pets"
-        _ * service.grailsUrlService.getPathForAction(petController, {it.name == 'save'}) >> "/api/pet/save"
 
         when:
         service.getPaths(swagger, [petController])
 
         then:
-        swagger.definitions.keySet() == ['Pet', 'PetBreed', 'APIResponse'] as Set
+        swagger.definitions.keySet() == ['Pet', 'Dog', 'PetBreed', 'APIResponse'] as Set
 
         and:
         swagger.definitions.Pet.required == ['collarNumber']
@@ -172,10 +172,15 @@ class SwaggerServiceSpec extends SwaggerSpecification {
         swagger.definitions.APIResponse.properties.meta.type == 'object'
     }
 
-    @Ignore
-    void "determines the HTTP Methods"(){
-        expect:
-        false
+    void "Includes all properties in Model (including inherited ones)"() {
+        when:
+        Map<String,Model> properties = service.fetchDefinitionsFrom(Dog)
+
+        then: 'includes the declared fields'
+        properties['Dog'].properties.keySet().contains('favouriteToy')
+
+        and: 'includes inherited fields'
+        properties['Dog'].properties.keySet().containsAll(['name','collarNumber','breed','dateOfBirth','allergies'])
     }
 }
 

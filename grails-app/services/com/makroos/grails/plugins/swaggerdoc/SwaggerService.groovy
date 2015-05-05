@@ -33,6 +33,7 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
 import org.codehaus.groovy.grails.commons.GrailsControllerClass
 import org.springframework.http.HttpStatus
+import org.springframework.util.ReflectionUtils
 
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -216,9 +217,18 @@ class SwaggerService {
         model.description = apiModel?.description() ?: null
 
         //Get all the fields which could be a property
-        List<Field> propertyCandidates = clazz.declaredFields.findAll { Field field ->
-            !Modifier.isStatic(field.modifiers) && !Modifier.isTransient(field.modifiers)
-        } as List
+        List<Field> propertyCandidates = []
+        ReflectionUtils.doWithFields(clazz, new ReflectionUtils.FieldCallback() {
+            @Override
+            void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                propertyCandidates << field
+            }
+        }, new ReflectionUtils.FieldFilter() {
+            @Override
+            boolean matches(Field field) {
+                !Modifier.isStatic(field.modifiers) && !Modifier.isTransient(field.modifiers)
+            }
+        })
 
         //Iterate and build the property objects
         propertyCandidates.each { Field field ->

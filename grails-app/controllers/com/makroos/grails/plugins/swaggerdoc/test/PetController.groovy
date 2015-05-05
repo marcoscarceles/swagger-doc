@@ -36,6 +36,18 @@ class PetController {
         ] as JSON)
     }
 
+    @ApiOperation(
+            value = "Shows Dogs only",
+            response = Dog,
+            responseContainer = "array"
+    )
+    def dogs() {
+        render([
+                new Pet(name: "Laika", collarNumber: 100),
+                new Pet(name: "Lassie", collarNumber: 101)
+        ] as JSON)
+    }
+
     @ApiResponses(value = [
             @ApiResponse(code=404,message = "Pet Not Found"),
             @ApiResponse(code=410,message = "Pet Gone")
