@@ -226,6 +226,7 @@ class SwaggerService {
         }, new ReflectionUtils.FieldFilter() {
             @Override
             boolean matches(Field field) {
+                !propertyCandidates*.name.contains(field.name) &&
                 !Modifier.isStatic(field.modifiers) && !Modifier.isTransient(field.modifiers)
             }
         })
