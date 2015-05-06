@@ -3,6 +3,7 @@ package com.makroos.grails.plugins.swaggerdoc.helpers
 import com.wordnik.swagger.annotations.ApiModel
 import com.wordnik.swagger.annotations.ApiModelProperty
 import com.wordnik.swagger.models.properties.ArrayProperty
+import com.wordnik.swagger.models.properties.BooleanProperty
 import com.wordnik.swagger.models.properties.Property
 import com.wordnik.swagger.models.properties.PropertyBuilder
 import com.wordnik.swagger.models.properties.RefProperty
@@ -83,14 +84,18 @@ class PropertyHelper {
         }
         Property property = PropertyBuilder.build(typeFormat.type,typeFormat.format, propertyArgs)
 
+        if (property instanceof RefProperty) {
+            property.$ref = field.type.getAnnotation(ApiModel)?.value() ?: field.type.simpleName
+        }
+
+        if (property instanceof BooleanProperty) {
+            ((BooleanProperty) property).default = modelProperty?.example() ? Boolean.valueOf(modelProperty.example()) : null
+        }
+
         if(List.isAssignableFrom(clazz) || Set.isAssignableFrom(clazz)) {
             ArrayProperty arrayProperty = new ArrayProperty(property)
             arrayProperty.uniqueItems = Set.isAssignableFrom(clazz)
             property = arrayProperty
-        }
-
-        if (property instanceof RefProperty) {
-            property.$ref = field.type.getAnnotation(ApiModel)?.value() ?: field.type.simpleName
         }
 
         property.title = modelProperty?.name() ?: field.name
