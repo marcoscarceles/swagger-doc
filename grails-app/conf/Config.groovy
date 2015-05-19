@@ -1,6 +1,6 @@
 // configuration for plugin testing - will not be included in the plugin zip
 
-grails.project.groupId = "com.makroos.grails.plugins.swaggerdoc"
+grails.project.groupId = "org.grails.plugins.swaggerdoc"
 
 grails.app.context = "/"
 
@@ -24,6 +24,6 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-    debug 'grails.app.services.com.makroos.grails.plugins.swaggerdoc'
-    debug 'com.makroos.grails.plugins.swaggerdoc'
+    debug 'grails.app.services.org.grails.plugins.swaggerdoc'
+    debug 'org.grails.plugins.swaggerdoc'
 }
